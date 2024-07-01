@@ -517,6 +517,7 @@ export default function ExamCreated() {
         fullWidth
       />
       <PreviewEssay
+        questionId={previewQuestionId}
         open={openPreviewEssay}
         setOpen={setOpenPreviewEssay}
         aria-labelledby={"customized-dialog-title2"}

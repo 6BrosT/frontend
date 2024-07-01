@@ -56,7 +56,7 @@ const PreviewShortAnswer = ({
   const [isCorrectAnswer, setIsCorrectAnswer] = useState(false);
   const [answerContentList, setAnswerContentList] = useState<string[]>([]);
 
-  const hanleGetShortAnswerQuestionDetail = async () => {
+  const handleGetShortAnswerQuestionDetail = async () => {
     try {
       const questionCommands: PostQuestionDetailList = {
         questionCommands: [
@@ -81,7 +81,7 @@ const PreviewShortAnswer = ({
 
   useEffect(() => {
     const fetchData = async () => {
-      const res = await hanleGetShortAnswerQuestionDetail();
+      const res = await handleGetShortAnswerQuestionDetail();
       setShortAnswerQuestionDetail(res.questionResponses[0].qtypeShortAnswerQuestion);
 
       setAnswerContentList(
@@ -187,7 +187,7 @@ const PreviewShortAnswer = ({
                 defaultValue={shortAnswerQuestionDetail?.question.questionText}
                 readOnly={true}
                 theme={"bubble"}
-                className={`text-editor`}
+                className={`text-editor-question-text`}
               />
               <ParagraphBody
                 fontSize={".875rem"}
