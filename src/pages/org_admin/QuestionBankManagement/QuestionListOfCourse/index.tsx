@@ -62,6 +62,7 @@ const QuestionListOfCourse = () => {
   const [openPreviewMultipleChoiceDialog, setOpenPreviewMultipleChoiceDialog] =
     React.useState(false);
   const [questionPreview, setQuestionPreview] = React.useState<QuestionEntity>();
+  const [previewQuestionId, setPreviewQuestionId] = React.useState<string>("");
 
   const columnsProps: GridColDef[] = [
     {
@@ -148,19 +149,22 @@ const QuestionListOfCourse = () => {
             label='Preview'
             onClick={() => {
               console.log(params.row, "params.row");
-              switch (params.row.qtype.toString().toUpperCase()) {
-                case "MULTIPLE_CHOICE":
+              switch (params.row.qtype) {
+                case qtype.multiple_choice.code:
                   setOpenPreviewMultipleChoiceDialog(!openPreviewMultipleChoiceDialog);
                   break;
-                case "ESSAY":
+                case qtype.essay.code:
                   setOpenPreviewEssay(!openPreviewEssay);
                   break;
-                case "SHORT_ANSWER":
+                case qtype.short_answer.code:
                   setQuestionPreview(params.row);
                   setOpenPreviewShortAnswer(!openPreviewShortAnswer);
                   break;
-                case "TRUE_FALSE":
+                case qtype.true_false.code:
                   setOpenPreviewTrueFalse(!openPreviewTrueFalse);
+                  break;
+                case qtype.source_code.code:
+                  // setOpenPreviewCodeQuestion(!openPreviewCodeQuestion);
                   break;
               }
             }}
@@ -351,7 +355,7 @@ const QuestionListOfCourse = () => {
       />
       <PreviewShortAnswer
         open={openPreviewShortAnswer}
-        question={questionPreview}
+        questionId={previewQuestionId}
         setOpen={setOpenPreviewShortAnswer}
         aria-labelledby={"customized-dialog-title3"}
         maxWidth='md'

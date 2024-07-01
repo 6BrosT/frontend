@@ -83,6 +83,7 @@ import { UserEntity } from "models/coreService/entity/UserEntity";
 import { QuestionDifficultyEnum } from "models/coreService/enum/QuestionDifficultyEnum";
 import { User } from "models/authService/entity/user";
 import { selectCurrentUser } from "reduxes/Auth";
+import qtype from "utils/constant/Qtype";
 
 const drawerWidth = 400;
 
@@ -260,6 +261,7 @@ export default function ExamCreated() {
   const [openPreviewShortAnswer, setOpenPreviewShortAnswer] = React.useState(false);
   const [questionPreview, setQuestionPreview] = React.useState<QuestionEntity>();
   const [openPreviewTrueFalse, setOpenPreviewTrueFalse] = React.useState(false);
+  const [previewQuestionId, setPreviewQuestionId] = React.useState<string>("");
 
   const tableHeading: GridColDef[] = React.useMemo(
     () => [
@@ -310,19 +312,23 @@ export default function ExamCreated() {
           <GridActionsCellItem icon={<EditIcon />} label='Edit' />,
           <GridActionsCellItem
             onClick={() => {
+              setPreviewQuestionId(params.row.id);
               switch (params.row.qtype) {
-                case "MULTIPLE_CHOICE":
+                case qtype.multiple_choice.code:
                   setOpenPreviewMultipleChoiceDialog(!openPreviewMultipleChoiceDialog);
                   break;
-                case "ESSAY":
+                case qtype.essay.code:
                   setOpenPreviewEssay(!openPreviewEssay);
                   break;
-                case "SHORT_ANSWER":
+                case qtype.short_answer.code:
                   setQuestionPreview(params.row);
                   setOpenPreviewShortAnswer(!openPreviewShortAnswer);
                   break;
-                case "TRUE_FALSE":
+                case qtype.true_false.code:
                   setOpenPreviewTrueFalse(!openPreviewTrueFalse);
+                  break;
+                case qtype.source_code.code:
+                  // setOpenPreviewCodeQuestion(!openPreviewCodeQuestion);
                   break;
               }
             }}
@@ -519,7 +525,7 @@ export default function ExamCreated() {
       />
       <PreviewShortAnswer
         open={openPreviewShortAnswer}
-        question={questionPreview}
+        questionId={previewQuestionId}
         setOpen={setOpenPreviewShortAnswer}
         aria-labelledby={"customized-dialog-title3"}
         maxWidth='md'
