@@ -128,7 +128,7 @@ const LecturerCourseInformation = () => {
             src='https://www.gstatic.com/classroom/themes/img_bookclub.jpg'
           />
           <Typography variant='h1' className={classes.classNameOverlay}>
-            {courseData?.name}
+            {courseState.courseDetail?.name}
           </Typography>
         </Card>
       </Grid>

@@ -29,10 +29,15 @@ const assignmentSlice = createSlice({
     },
     setListSubmission: (state, action) => {
       state.listSubmission = action.payload;
+    },
+    clearAssignments: (state, action) => {
+      state.assignments = [];
+      state.courseId = null;
     }
   }
 });
 
-export const { setAssignments, setAssignmentDetails, setListSubmission } = assignmentSlice.actions;
+export const { setAssignments, setAssignmentDetails, setListSubmission, clearAssignments } =
+  assignmentSlice.actions;
 
 export default assignmentSlice.reducer;
