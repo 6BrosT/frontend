@@ -3,6 +3,7 @@ export const API = {
     CERTIFICATE_COURSE: {
       DEFAULT: "/core/certificate-courses",
       MY_COURSES: "/core/certificate-courses/me",
+      MY_COMPLETED_CERTIFICATIONS: "/core/certificate-courses/my-certifications",
       MOST_ENROLLED: "/core/certificate-courses/most-enrolled",
       GET_BY_ID: "/core/certificate-courses/:id",
       UPDATE_BY_ID: "/core/certificate-courses/:id",
@@ -60,18 +61,21 @@ export const API = {
       SHORT_ANSWER_QUESTION: {
         CREATE: "/core/questions/shortanswer-question/create",
         GET_BY_ID: "/core/questions/shortanswer-question/:id",
-        GET_ALL: "/core/questions/shortanswer-question"
+        GET_ALL: "/core/questions/shortanswer-question",
+        UPDATE: "/core/questions/shortanswer-question"
       },
       ESSAY_QUESTION: {
         CREATE: "/core/questions/essay-question/create",
         GET_BY_ID: "/core/questions/essay-question/:id",
-        GET_ALL: "/core/questions/essay-question"
+        GET_ALL: "/core/questions/essay-question",
+        UPDATE: "/core/questions/essay-question"
       },
       MULTIPLE_CHOICE_QUESTION: {
         CREATE: "/core/questions/multichoice-question/create",
         GET_BY_ID: "questions/multichoice-question/:id",
         GET_BY_QUESTION_ID: "questions/multichoice-question/questionId/:questionId",
-        GET_ALL: "/core/questions/multichoice-question"
+        GET_ALL: "/core/questions/multichoice-question",
+        UPDATE: "/core/questions/multichoice-question"
       },
       CODE_QUESTION: {
         GET_ALL_BY_ADMIN: "/core/questions/code-question/admin",
@@ -156,7 +160,7 @@ export const API = {
       SUBMISSION_STUDENT: "/course/exam/:id/submission",
       SUBMISSION_DETAIL: "/course/exam/question/submit/:id",
       ONGOING_SUBMISSION_DETAIL: "/course/exam/latest-submission",
-      SET_GRADE_STATUS: "/course/exam//grading/submission/:id"
+      SET_GRADE_STATUS: "/course/exam/grading/submission/:id"
     },
     EXAM_QUESTION: {
       DEFAULT: "/course/exam/:examId/question"
@@ -174,6 +178,12 @@ export const API = {
       DELETE_BY_ID: "/course/question/bank/category/:id",
       CREATE: "/course/question/bank/category/create"
     },
+    EVENT_CALENDAR: {
+      DEFAULT: "/course/calendar-events/query/my-calendar-events",
+      CREATE: "/course/calendar-events/create",
+      DELETE_BY_ID: "/course/calendar-events/:id",
+      UPDATE_BY_ID: "/course/calendar-events/:id"
+    },
     QUESTION_SUBMISSION: {
       SUBMIT_LIST: "/course/question/submit-all",
       SUBMIT_ONE: "/course/question/submit-one",
@@ -189,7 +199,8 @@ export const API = {
       DEFAULT: "/code-assessment/code-question",
       GET_BY_IDS: "/code-assessment/code-question/detail",
       RECOMMENED: "/code-assessment/code-question/most-practicing-recently",
-      ADMIN_CODE_QUESTION: "/code-assessment/code-question/admin-code-question"
+      ADMIN_CODE_QUESTION: "/code-assessment/code-question/admin-code-question",
+      ADMIN_CODE_QUESTION_DETAIL: "/code-assessment/code-question/admin-detail/:id"
     },
     CODE_SUBMISSION: {
       DEFAULT: "/code-assessment/code-submission",

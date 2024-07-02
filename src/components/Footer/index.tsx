@@ -12,7 +12,7 @@ export default function Footer() {
   const { t } = useTranslation();
 
   return (
-    <Grid container id={classes.footerWrapper}>
+    <footer>
       <Grid container id={classes.footerTop}>
         <Grid item xs={12} md={5} className={classes.footerListItem}>
           <Box className={classes.logo}>
@@ -63,11 +63,11 @@ export default function Footer() {
           </Heading5>
           <ParagraphBody colorname='--gray-20'>
             <Link
-              to={routes.user.business_contact.root}
+              to={routes.user.organization.root}
               className={classes.textLink}
-              translation-key='footer_link_contact'
+              translation-key='header_create_organization'
             >
-              {t("footer_link_contact")}
+              {t("header_create_organization")}
             </Link>
           </ParagraphBody>
         </Grid>
@@ -78,6 +78,6 @@ export default function Footer() {
           © 2024 {t("footer_copyright")}: CodeDynamite
         </Heading5>
       </Grid>
-    </Grid>
+    </footer>
   );
 }

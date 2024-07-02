@@ -3,7 +3,6 @@ import i18next from "i18next";
 import classes from "./styles.module.scss";
 import Box from "@mui/material/Box";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import { Divider } from "@mui/material";
 import useBoxDimensions from "hooks/useBoxDimensions";
 import { useRef } from "react";
 import ParagraphBody from "components/text/ParagraphBody";
@@ -12,24 +11,21 @@ import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import MemoryIcon from "@mui/icons-material/Memory";
 import ParagraphSmall from "components/text/ParagraphSmall";
 import { useTranslation } from "react-i18next";
-import { ISourceCodeSubmission, feedbackCodeByAI } from "services/FeedbackCodeByAI";
+import { ISourceCodeSubmission, feedbackCodeByAI } from "services/AIService/FeedbackCodeByAI";
 import { useState } from "react";
 
 import MDEditor from "@uiw/react-md-editor";
 import LoadingButton from "@mui/lab/LoadingButton";
-import SnackbarAlert, { AlertType } from "components/common/SnackbarAlert";
 import { CodeSubmissionDetailEntity } from "models/codeAssessmentService/entity/CodeSubmissionDetailEntity";
 import { CodeQuestionEntity } from "models/codeAssessmentService/entity/CodeQuestionEntity";
 import { useAppSelector } from "hooks";
 import { convert } from "html-to-text";
 import { standardlizeUTCStringToLocaleString } from "utils/moment";
 import { kiloByteToMegaByte, roundedNumber } from "utils/number";
-import useAuth from "hooks/useAuth";
-import images from "config/images";
-import { decodeBase64, removeNewLine } from "utils/base64";
 import { generateHSLColorByRandomText } from "utils/generateColorByText";
 import { useNavigate, useParams } from "react-router-dom";
 import { routes } from "routes/routes";
+import Heading5 from "components/text/Heading5";
 
 interface Props {
   handleSubmissionDetail: () => void;
@@ -89,9 +85,6 @@ export default function DetailSolution({
     ref: stickyBackRef
   });
   const [loading, setLoading] = useState(false);
-  const [openSnackbarAlert, setOpenSnackbarAlert] = useState(false);
-  const [alertContent, setAlertContent] = useState<string>("");
-  const [alertType, setAlertType] = useState<AlertType>(AlertType.Success);
   const [feedbackContent, setFeedbackContent] = useState<string>(``);
   const [chunckLoading, setChunkLoading] = useState(false);
   const [suggestedCode, setSuggestedCode] = useState<string>("");
@@ -107,7 +100,7 @@ export default function DetailSolution({
 
     try {
       let isFeedback = false;
-      let isSugessted = false;
+      let isSuggestedCode = false;
       let isExplainedCode = false;
 
       for await (const chunk of feedbackCodeByAI(
@@ -117,17 +110,17 @@ export default function DetailSolution({
         if (chunk === "feedback_prompt") {
           isFeedback = true;
           isExplainedCode = false;
-          isSugessted = false;
+          isSuggestedCode = false;
 
           continue;
         } else if (chunk === "suggested_code_prompt") {
           isFeedback = false;
-          isSugessted = true;
+          isSuggestedCode = true;
           isExplainedCode = false;
 
           continue;
         } else if (chunk === "explained_code_prompt") {
-          isSugessted = false;
+          isSuggestedCode = false;
           isFeedback = false;
           isExplainedCode = true;
 
@@ -136,7 +129,7 @@ export default function DetailSolution({
 
         if (isFeedback) {
           setFeedbackContent((prev) => prev + chunk);
-        } else if (isSugessted) {
+        } else if (isSuggestedCode) {
           setSuggestedCode((prev) => prev + chunk);
         } else if (isExplainedCode) {
           setExplainedCode((prev) => prev + chunk);
@@ -168,7 +161,6 @@ export default function DetailSolution({
           <ArrowBackIcon className={classes.backIcon} />
           <span translation-key='common_back'>{t("common_back")}</span>
         </Box>
-        <Divider />
       </Box>
       <Box
         className={classes.submissionContainer}
@@ -179,8 +171,8 @@ export default function DetailSolution({
         <Box className={classes.submissionInfo}>
           <Box className={classes.submissionTitle}>
             {codeSubmissionDetail && (
-              <ParagraphBody
-                fontWeight={"700"}
+              <Heading5
+                fontWeight={600}
                 colorname={
                   codeSubmissionDetail.gradingStatus === "GRADING"
                     ? "--orange-4"
@@ -193,7 +185,7 @@ export default function DetailSolution({
                 codeSubmissionDetail.description === undefined
                   ? codeSubmissionDetail.gradingStatus.replace("_", " ")
                   : codeSubmissionDetail.description}
-              </ParagraphBody>
+              </Heading5>
             )}
             <Box className={classes.submissionAuthor}>
               <Avatar
@@ -206,17 +198,17 @@ export default function DetailSolution({
                 {user?.firstName.charAt(0)}
               </Avatar>
 
-              <ParagraphExtraSmall fontWeight={"700"}>
+              <ParagraphBody fontWeight={600}>
                 {i18next.language === "vi"
                   ? `${user?.lastName ?? ""} ${user?.firstName ?? ""}`
                   : `${user?.firstName ?? ""} ${user?.lastName ?? ""}`}
-              </ParagraphExtraSmall>
-              <ParagraphExtraSmall translation-key='detail_problem_submission_detail_user_submission_time'>
+              </ParagraphBody>
+              <ParagraphBody translation-key='detail_problem_submission_detail_user_submission_time'>
                 {t("detail_problem_submission_detail_user_submission_time", {
                   time: toDateFormate(codeSubmissionDetail?.createdAt, i18next.language) ?? "N/A",
                   interpolation: { escapeValue: false }
                 })}
-              </ParagraphExtraSmall>
+              </ParagraphBody>
             </Box>
           </Box>
           {isShareSolutionDisabled === true ? null : (
@@ -417,39 +409,37 @@ export default function DetailSolution({
             </LoadingButton>
           </Box>
           <Box data-color-mode='light'>
-            <MDEditor.Markdown source={"```java\n" + sourceCodeSubmission.source_code} />
+            <MDEditor.Markdown source={"```\n" + sourceCodeSubmission.source_code} />
           </Box>
         </Box>
 
-        {feedbackContent && (
-          <Box className={classes.submissionText}>
-            {feedbackContent && (
+        <Box className={classes.submissionText}>
+          {feedbackContent && (
+            <Box data-color-mode='light'>
+              <MDEditor.Markdown
+                source={feedbackContent.replaceAll("```", "")}
+                className={classes.markdown}
+              />
+            </Box>
+          )}
+          {suggestedCode && (
+            <Box data-color-mode='light'>
+              <MDEditor.Markdown source={"\n" + suggestedCode} />
+            </Box>
+          )}
+          {explainedCode && (
+            <>
               <Box data-color-mode='light'>
-                <MDEditor.Markdown source={feedbackContent} className={classes.markdown} />
+                <MDEditor.Markdown
+                  source={explainedCode.replaceAll("```", "")}
+                  className={classes.markdown}
+                />
               </Box>
-            )}
-            {suggestedCode && (
-              <Box data-color-mode='light'>
-                <MDEditor.Markdown source={"\n" + suggestedCode} />
-              </Box>
-            )}
-            {explainedCode && (
-              <>
-                <Box data-color-mode='light'>
-                  <MDEditor.Markdown source={explainedCode} className={classes.markdown} />
-                </Box>
-              </>
-            )}
-          </Box>
-        )}
+            </>
+          )}
+        </Box>
         {chunckLoading && <CircularProgress />}
       </Box>
-      <SnackbarAlert
-        open={openSnackbarAlert}
-        setOpen={setOpenSnackbarAlert}
-        type={alertType}
-        content={alertContent}
-      />
     </Grid>
   );
 }

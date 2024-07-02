@@ -7,7 +7,7 @@ import { useTranslation } from "react-i18next";
 import Heading4 from "components/text/Heading4";
 import ParagraphBody from "components/text/ParagraphBody";
 import { Textarea } from "@mui/joy";
-import { EssayQuestion } from "models/coreService/entity/QuestionEntity";
+import { EssayQuestion } from "models/coreService/entity/EssayQuestionEntity";
 import {
   addFileToExamQuesiton,
   removeAllFilesFromExamQuestion,
@@ -157,7 +157,6 @@ const EssayExamQuestion = (props: Props) => {
             maxFileSize={convertedFileSize}
             accept={fileTypeList}
             maxFiles={questionEssayQuestion.attachments}
-            stopAutoUpload
             disableDownload
             relatedId={questionEssayQuestion.question.id}
             relatedDispatch={addFileToExamQuesiton}

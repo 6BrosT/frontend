@@ -34,6 +34,7 @@ import OrganizationManagement from "./OrganizationManagement/OrganizationManagem
 import CreateOrganization from "./OrganizationManagement/CreateOrganization";
 import EditOrganizationDetails from "./OrganizationManagement/EditOrganizationDetails";
 import UpdateCertificateCourse from "./CertificateCourseManagement/UpdateCertificateCourse";
+import AdminCodeQuestionDetails from "./CodeQuestionManagement/Details";
 
 type Props = {};
 
@@ -50,7 +51,7 @@ const SystemAdminHomepage = (props: Props) => {
     <Grid className={classes.root}>
       <SidebarSystemAdmin open={open} toggleDrawer={toggleDrawer}>
         {/* <Box className={classes.container}> */}
-        <Box className={classes.body}>
+        <Box className={classes.adminBody}>
           <Routes>
             <Route path={"contests"} element={<ContestManagement />} />
             <Route path={"contests/create"} element={<CreateContest />} />
@@ -109,6 +110,10 @@ const SystemAdminHomepage = (props: Props) => {
 
             <Route path={"/code-questions"} element={<AdminCodeQuestionManagement />} />
             <Route path={"/code-questions/create"} element={<AdminCodeQuestionCreation />} />
+            <Route
+              path='code-questions/detail/:codeQuestionId'
+              element={<AdminCodeQuestionDetails />}
+            />
             <Route path={"/certificate-course/:id"} element={<UpdateCertificateCourse />} />
           </Routes>
         </Box>

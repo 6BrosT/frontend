@@ -1,9 +1,7 @@
 import { Box, Grid } from "@mui/material";
-import { useRef } from "react";
 import classes from "./styles.module.scss";
 import Footer from "components/Footer";
 import Header from "components/Header";
-import useBoxDimensions from "hooks/useBoxDimensions";
 import { Route, Routes } from "react-router";
 import CourseCertificates from "./CourseCertificate";
 import HomePage from "./HomePage";
@@ -37,34 +35,31 @@ const UserHomepage = (props: Props) => {
         id={classes.userPageMain}
         style={{
           marginTop: `${sidebarStatus.headerHeight}px`,
-          height: `calc(100% - ${sidebarStatus.headerHeight}px)`,
-          overflow: "auto"
+          height: `calc(100% - ${sidebarStatus.headerHeight}px)`
         }}
       >
-        <Box id={classes.userPageBody}>
-          <Routes>
-            <Route path={""} element={<HomePage />} />
-            <Route path={"certificate-courses"} element={<CourseCertificates />} />
-            <Route path={"certificate-courses/:courseId/*"} element={<CourseCertificateDetail />} />
-            <Route path={"problems"} element={<ListProblem />} />
-            <Route path={"contests"} element={<ContestList />} />
-            <Route path={"contests/:contestId/*"} element={<ContestDetails />} />
-            <Route path={"login"} element={<Login />} />
-            <Route path={"register"} element={<Register />} />
-            <Route path={"business-contact"} element={<BusinessContact />} />
-            <Route path={"forgot-password"} element={<ForgotPassword />} />
-            <Route path={"forgot-password/verify-otp"} element={<VerifyOTP />} />
-            <Route path={"forgot-password/reset-password"} element={<ResetPassword />} />
-            <Route path={"home"} element={<UserDashboard />} />
-            <Route element={<RequireAuth availableRoles={[ERoleName.USER]} />}>
-              <Route path={"user/information"} element={<UserInformation />} />
-            </Route>
-            <Route path={"forbidden"} element={<ForbiddenPage />} />
-            <Route path={"*"} element={<NotFoundPage />} />
-          </Routes>
-        </Box>
-        <Footer />
+        <Routes>
+          <Route path={""} element={<HomePage />} />
+          <Route path={"certificate-courses"} element={<CourseCertificates />} />
+          <Route path={"certificate-courses/:courseId/*"} element={<CourseCertificateDetail />} />
+          <Route path={"problems"} element={<ListProblem />} />
+          <Route path={"contests"} element={<ContestList />} />
+          <Route path={"contests/:contestId/*"} element={<ContestDetails />} />
+          <Route path={"login"} element={<Login />} />
+          <Route path={"register"} element={<Register />} />
+          <Route path={"organization"} element={<BusinessContact />} />
+          <Route path={"forgot-password"} element={<ForgotPassword />} />
+          <Route path={"forgot-password/verify-otp"} element={<VerifyOTP />} />
+          <Route path={"forgot-password/reset-password"} element={<ResetPassword />} />
+          <Route path={"home"} element={<UserDashboard />} />
+          <Route element={<RequireAuth availableRoles={[ERoleName.USER]} />}>
+            <Route path={"user/information"} element={<UserInformation />} />
+          </Route>
+          <Route path={"forbidden"} element={<ForbiddenPage />} />
+          <Route path={"*"} element={<NotFoundPage />} />
+        </Routes>
       </main>
+      <Footer />
     </Grid>
   );
 };
