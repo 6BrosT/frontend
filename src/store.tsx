@@ -37,6 +37,7 @@ import SidebarStatus from "reduxes/SidebarStatus";
 import takeExamCodeQuestion, {
   TakeExamCodeQuestionInitState
 } from "reduxes/TakeExam/TakeExamCodeQuestion";
+import previewCodeQuestionTestCase from "reduxes/courseService/previewCodeQuestionTestCase";
 
 const persistConfig = {
   key: "takeExamCodeQuestion",
@@ -80,7 +81,8 @@ const store = configureStore({
     appStatus: appStatus,
     adminCertificateCourse: adminCertificateCourse,
     sidebarStatus: SidebarStatus,
-    takeExamCodeQuestion: takeExamPersistedReducer
+    takeExamCodeQuestion: takeExamPersistedReducer,
+    previewCodeQuestionTestCase: previewCodeQuestionTestCase
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

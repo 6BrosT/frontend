@@ -31,7 +31,7 @@ import ParagraphSmall from "components/text/ParagraphSmall";
 import SentimentSatisfiedAltRoundedIcon from "@mui/icons-material/SentimentSatisfiedAltRounded";
 import SentimentDissatisfiedRoundedIcon from "@mui/icons-material/SentimentDissatisfiedRounded";
 
-interface PreviewMultipleChoiceProps extends DialogProps {
+interface PreviewShortAnswerProps extends DialogProps {
   questionId: string;
   readOnly?: boolean;
   value?: string;
@@ -44,7 +44,7 @@ const PreviewShortAnswer = ({
 
   readOnly,
   ...props
-}: PreviewMultipleChoiceProps) => {
+}: PreviewShortAnswerProps) => {
   const { t } = useTranslation();
   const [value, setValue] = useState<string>("");
 

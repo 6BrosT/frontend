@@ -86,6 +86,7 @@ import { useEffect, useState } from "react";
 import { setExamDetail } from "reduxes/courseService/exam";
 import { di } from "@fullcalendar/core/internal-common";
 import qtype from "utils/constant/Qtype";
+import PreviewCodeQuestion from "components/dialog/preview/PreviewCodeQuestion";
 
 const drawerWidth = 400;
 
@@ -312,6 +313,7 @@ export default function ExamEdit() {
   const [openPreviewShortAnswer, setOpenPreviewShortAnswer] = React.useState(false);
   const [questionPreview, setQuestionPreview] = React.useState<QuestionEntity>();
   const [openPreviewTrueFalse, setOpenPreviewTrueFalse] = React.useState(false);
+  const [openPreviewCodeQuestion, setOpenPreviewCodeQuestion] = React.useState(false);
   const [previewQuestionId, setPreviewQuestionId] = React.useState<string>("");
 
   const tableHeading: GridColDef[] = React.useMemo(
@@ -404,7 +406,7 @@ export default function ExamEdit() {
                   setOpenPreviewTrueFalse(!openPreviewTrueFalse);
                   break;
                 case qtype.source_code.code:
-                  // setOpenPreviewCodeQuestion(!openPreviewCodeQuestion);
+                  setOpenPreviewCodeQuestion(!openPreviewCodeQuestion);
                   break;
               }
             }}
@@ -420,6 +422,7 @@ export default function ExamEdit() {
       openPreviewMultipleChoiceDialog,
       openPreviewShortAnswer,
       openPreviewTrueFalse,
+      openPreviewCodeQuestion,
       t
     ]
   );
@@ -615,6 +618,16 @@ export default function ExamEdit() {
           open={openPreviewTrueFalse}
           setOpen={setOpenPreviewTrueFalse}
           aria-labelledby={"customized-dialog-title4"}
+          maxWidth='md'
+          fullWidth
+        />
+      )}
+      {openPreviewCodeQuestion && (
+        <PreviewCodeQuestion
+          questionId={previewQuestionId}
+          open={openPreviewCodeQuestion}
+          setOpen={setOpenPreviewCodeQuestion}
+          aria-labelledby={"customized-dialog-title5"}
           maxWidth='md'
           fullWidth
         />
