@@ -509,38 +509,47 @@ export default function ExamCreated() {
         handleChangeQuestionType={handleChangeQuestionType}
         translation-key={["exam_management_create_new_question", "common_cancel", "common_add"]}
       />
-      <PreviewMultipleChoice
-        questionId={previewQuestionId}
-        open={openPreviewMultipleChoiceDialog}
-        setOpen={setOpenPreviewMultipleChoiceDialog}
-        aria-labelledby={"customized-dialog-title1"}
-        maxWidth='md'
-        fullWidth
-      />
-      <PreviewEssay
-        questionId={previewQuestionId}
-        open={openPreviewEssay}
-        setOpen={setOpenPreviewEssay}
-        aria-labelledby={"customized-dialog-title2"}
-        maxWidth='md'
-        fullWidth
-      />
-      <PreviewShortAnswer
-        open={openPreviewShortAnswer}
-        questionId={previewQuestionId}
-        setOpen={setOpenPreviewShortAnswer}
-        aria-labelledby={"customized-dialog-title3"}
-        maxWidth='md'
-        fullWidth
-      />
-      <PreviewTrueFalse
-        questionId={previewQuestionId}
-        open={openPreviewTrueFalse}
-        setOpen={setOpenPreviewTrueFalse}
-        aria-labelledby={"customized-dialog-title4"}
-        maxWidth='md'
-        fullWidth
-      />
+
+      {openPreviewMultipleChoiceDialog && (
+        <PreviewMultipleChoice
+          questionId={previewQuestionId}
+          open={openPreviewMultipleChoiceDialog}
+          setOpen={setOpenPreviewMultipleChoiceDialog}
+          aria-labelledby={"customized-dialog-title1"}
+          maxWidth='md'
+          fullWidth
+        />
+      )}
+      {openPreviewEssay && (
+        <PreviewEssay
+          questionId={previewQuestionId}
+          open={openPreviewEssay}
+          setOpen={setOpenPreviewEssay}
+          aria-labelledby={"customized-dialog-title2"}
+          maxWidth='md'
+          fullWidth
+        />
+      )}
+      {openPreviewShortAnswer && (
+        <PreviewShortAnswer
+          open={openPreviewShortAnswer}
+          questionId={previewQuestionId}
+          setOpen={setOpenPreviewShortAnswer}
+          aria-labelledby={"customized-dialog-title3"}
+          maxWidth='md'
+          fullWidth
+        />
+      )}
+      {openPreviewTrueFalse && (
+        <PreviewTrueFalse
+          questionId={previewQuestionId}
+          open={openPreviewTrueFalse}
+          setOpen={setOpenPreviewTrueFalse}
+          aria-labelledby={"customized-dialog-title4"}
+          maxWidth='md'
+          fullWidth
+        />
+      )}
 
       <PickQuestionFromQuestionBankDialog
         open={isAddQuestionFromBankDialogOpen}
