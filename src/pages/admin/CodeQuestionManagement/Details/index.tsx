@@ -23,9 +23,11 @@ import { FormProvider, useForm } from "react-hook-form";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { QuestionDifficultyEnum } from "models/coreService/enum/QuestionDifficultyEnum";
+import isQuillEmpty from "utils/coreService/isQuillEmpty";
+import { dA } from "@fullcalendar/core/internal-common";
 
 interface Props {}
-
+const checkEmptyString = (value: string) => value !== undefined && value.trim().length > 0;
 const AdminCodeQuestionDetails = (props: Props) => {
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
@@ -34,29 +36,54 @@ const AdminCodeQuestionDetails = (props: Props) => {
       name: yup
         .string()
         .required(t("name_required"))
+        .test("not-blank", `${t("name_required")}`, checkEmptyString),
+      problemStatement: yup
+        .string()
+        .required(t("code_management_statement_required"))
         .test(
           "not-blank",
-          `${t("name_required")}`,
-          (value) => value !== undefined && value.trim().length > 0
-        )
-      // problemStatement: yup.string()
-      // inputFormat: yup.string().notRequired(),
-      // outputFormat: yup.string().notRequired(),
-      // contraints: yup.string().notRequired(),
-      // isPublic: yup.boolean().notRequired(),
-      // allowImport: yup.boolean().notRequired(),
-      // difficulty: yup
-      //   .mixed<QuestionDifficultyEnum>()
-      //   .oneOf(Object.values(QuestionDifficultyEnum))
-      //   .notRequired()
+          `${t("code_management_statement_required")}`,
+          (value) => !isQuillEmpty(value)
+        ),
+      inputFormat: yup
+        .string()
+        .required(t("code_management_input_format"))
+        .test("not-blank", `${t("code_management_input_format")}`, checkEmptyString),
+      outputFormat: yup
+        .string()
+        .required(t("code_management_output_format"))
+        .test("not-blank", `${t("code_management_output_format")}`, checkEmptyString),
+      contraints: yup
+        .string()
+        .required(t("code_management_constraint"))
+        .test("not-blank", `${t("code_management_constraint")}`, checkEmptyString),
+      isPublic: yup.boolean().required(),
+      allowImport: yup.boolean().required(),
+      difficulty: yup
+        .mixed<QuestionDifficultyEnum>()
+        .oneOf(Object.values(QuestionDifficultyEnum))
+        .required(t("code_management_difficulty_required"))
     });
   }, [t]);
-  const codeQuestionFormMethod = useForm<CodeQuestionFormData>({
-    resolver: yupResolver(schema)
-  });
-  const params = useParams<{ questionId: string }>();
-  const codeQuestionId = params?.questionId;
   const [codeQuestion, setCodeQuestion] = useState<CodeQuestionAdminEntity | undefined>(undefined);
+  const codeQuestionFormMethod = useForm<CodeQuestionFormData>({
+    resolver: yupResolver(schema),
+    defaultValues: useMemo(
+      () => ({
+        name: codeQuestion?.name ?? "",
+        problemStatement: codeQuestion?.problemStatement ?? "",
+        difficulty: codeQuestion?.difficulty ?? QuestionDifficultyEnum.EASY,
+        inputFormat: codeQuestion?.inputFormat ?? "",
+        outputFormat: codeQuestion?.outputFormat ?? "",
+        contraints: codeQuestion?.constraints ?? "None",
+        isPublic: codeQuestion?.isPublic ?? true,
+        allowImport: codeQuestion?.allowImport ?? false
+      }),
+      [codeQuestion]
+    )
+  });
+  const params = useParams<{ codeQuestionId: string }>();
+  const codeQuestionId = params?.codeQuestionId;
 
   const handleGetCodeQuestionById = useCallback(
     (codeQuestionId: string | undefined) => {
@@ -64,7 +91,7 @@ const AdminCodeQuestionDetails = (props: Props) => {
         dispatch(setLoading(true));
         CodeQuestionService.getAdminDetailCodeQuestion(codeQuestionId)
           .then((data: CodeQuestionAdminEntity) => {
-            codeQuestionFormMethod.setValue("name", data.name);
+            setCodeQuestion(data);
           })
           .catch((err) => console.log(err))
           .finally(() => {
@@ -72,12 +99,24 @@ const AdminCodeQuestionDetails = (props: Props) => {
           });
       }
     },
-    [codeQuestionFormMethod, dispatch]
+    [dispatch]
   );
+  useEffect(() => {
+    codeQuestionFormMethod.reset({
+      name: codeQuestion?.name ?? "",
+      difficulty: codeQuestion?.difficulty ?? QuestionDifficultyEnum.EASY,
+      problemStatement: codeQuestion?.problemStatement ?? "",
+      inputFormat: codeQuestion?.inputFormat ?? "",
+      outputFormat: codeQuestion?.outputFormat ?? "",
+      contraints: codeQuestion?.constraints ?? "None",
+      isPublic: codeQuestion?.isPublic ?? true,
+      allowImport: codeQuestion?.allowImport ?? false
+    });
+  }, [codeQuestion, codeQuestionFormMethod]);
 
   useEffect(() => {
     handleGetCodeQuestionById(codeQuestionId);
-  }, [codeQuestionId]);
+  }, [codeQuestionId, handleGetCodeQuestionById]);
   useEffect(() => {
     console.log(codeQuestionId);
   }, []);
@@ -91,6 +130,7 @@ const AdminCodeQuestionDetails = (props: Props) => {
 
   const [activeTab, setActiveTab] = useState("0");
   const onSubmit = (data: CodeQuestionFormData) => {
+    console.log("dirty", codeQuestionFormMethod.formState.dirtyFields);
     console.log(data);
   };
   return (

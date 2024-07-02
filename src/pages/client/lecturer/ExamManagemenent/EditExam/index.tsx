@@ -312,6 +312,7 @@ export default function ExamEdit() {
   const [openPreviewShortAnswer, setOpenPreviewShortAnswer] = React.useState(false);
   const [questionPreview, setQuestionPreview] = React.useState<QuestionEntity>();
   const [openPreviewTrueFalse, setOpenPreviewTrueFalse] = React.useState(false);
+  const [previewQuestionId, setPreviewQuestionId] = React.useState<string>("");
 
   const tableHeading: GridColDef[] = React.useMemo(
     () => [
@@ -387,19 +388,23 @@ export default function ExamEdit() {
           />,
           <GridActionsCellItem
             onClick={() => {
+              setPreviewQuestionId(params.row.id);
               switch (params.row.qtype) {
-                case "MULTIPLE_CHOICE":
+                case qtype.multiple_choice.code:
                   setOpenPreviewMultipleChoiceDialog(!openPreviewMultipleChoiceDialog);
                   break;
-                case "ESSAY":
+                case qtype.essay.code:
                   setOpenPreviewEssay(!openPreviewEssay);
                   break;
-                case "SHORT_ANSWER":
+                case qtype.short_answer.code:
                   setQuestionPreview(params.row);
                   setOpenPreviewShortAnswer(!openPreviewShortAnswer);
                   break;
-                case "TRUE_FALSE":
+                case qtype.true_false.code:
                   setOpenPreviewTrueFalse(!openPreviewTrueFalse);
+                  break;
+                case qtype.source_code.code:
+                  // setOpenPreviewCodeQuestion(!openPreviewCodeQuestion);
                   break;
               }
             }}
@@ -574,35 +579,46 @@ export default function ExamEdit() {
         handleChangeQuestionType={handleChangeQuestionType}
         translation-key={["exam_management_create_new_question", "common_cancel", "common_add"]}
       />
-      <PreviewMultipleChoice
-        open={openPreviewMultipleChoiceDialog}
-        setOpen={setOpenPreviewMultipleChoiceDialog}
-        aria-labelledby={"customized-dialog-title1"}
-        maxWidth='md'
-        fullWidth
-      />
-      <PreviewEssay
-        open={openPreviewEssay}
-        setOpen={setOpenPreviewEssay}
-        aria-labelledby={"customized-dialog-title2"}
-        maxWidth='md'
-        fullWidth
-      />
-      <PreviewShortAnswer
-        open={openPreviewShortAnswer}
-        question={questionPreview}
-        setOpen={setOpenPreviewShortAnswer}
-        aria-labelledby={"customized-dialog-title3"}
-        maxWidth='md'
-        fullWidth
-      />
-      <PreviewTrueFalse
-        open={openPreviewTrueFalse}
-        setOpen={setOpenPreviewTrueFalse}
-        aria-labelledby={"customized-dialog-title4"}
-        maxWidth='md'
-        fullWidth
-      />
+      {openPreviewMultipleChoiceDialog && (
+        <PreviewMultipleChoice
+          questionId={previewQuestionId}
+          open={openPreviewMultipleChoiceDialog}
+          setOpen={setOpenPreviewMultipleChoiceDialog}
+          aria-labelledby={"customized-dialog-title1"}
+          maxWidth='md'
+          fullWidth
+        />
+      )}
+      {openPreviewEssay && (
+        <PreviewEssay
+          questionId={previewQuestionId}
+          open={openPreviewEssay}
+          setOpen={setOpenPreviewEssay}
+          aria-labelledby={"customized-dialog-title2"}
+          maxWidth='md'
+          fullWidth
+        />
+      )}
+      {openPreviewShortAnswer && (
+        <PreviewShortAnswer
+          open={openPreviewShortAnswer}
+          questionId={previewQuestionId}
+          setOpen={setOpenPreviewShortAnswer}
+          aria-labelledby={"customized-dialog-title3"}
+          maxWidth='md'
+          fullWidth
+        />
+      )}
+      {openPreviewTrueFalse && (
+        <PreviewTrueFalse
+          questionId={previewQuestionId}
+          open={openPreviewTrueFalse}
+          setOpen={setOpenPreviewTrueFalse}
+          aria-labelledby={"customized-dialog-title4"}
+          maxWidth='md'
+          fullWidth
+        />
+      )}
 
       <PickQuestionFromQuestionBankDialog
         open={isAddQuestionFromBankDialogOpen}

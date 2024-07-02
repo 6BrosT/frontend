@@ -27,6 +27,8 @@ import CreateQuestionByAI, {
 import MDEditor from "@uiw/react-md-editor";
 import { useTranslation } from "react-i18next";
 import i18next from "i18next";
+import { useSelector } from "react-redux";
+import { RootState } from "store";
 interface Props {
   insideCrumb?: boolean;
 }
@@ -60,11 +62,9 @@ const AICreationQuestion = (props: Props) => {
   const navigate = useNavigate();
   const matches = useMatches();
 
-  const headerRef = useRef<HTMLDivElement>(null);
-  let { height: headerHeight } = useBoxDimensions({
-    ref: headerRef
-  });
-  if (props.insideCrumb) headerHeight = 0;
+  const sidebarStatus = useSelector((state: RootState) => state.sidebarStatus);
+  const [headerHeight, setHeaderHeight] = useState<number>(sidebarStatus.headerHeight);
+  if (props.insideCrumb) setHeaderHeight(0);
 
   const [modeEdit, setModeEdit] = useState(false);
   const { t } = useTranslation();
@@ -113,7 +113,6 @@ const AICreationQuestion = (props: Props) => {
         level
       )) {
         if (chunk && isResponseFormatQuestion(chunk)) {
-          console.log("chunk", chunk.questions);
           const questionsTemp = chunk?.questions;
           setQuestions(questionsTemp);
           setLengthQuestion(questionsTemp.length);
@@ -133,7 +132,7 @@ const AICreationQuestion = (props: Props) => {
 
   return (
     <Grid className={classes.root}>
-      <Header ref={headerRef} />
+      <Header />
       <Container style={{ marginTop: `${headerHeight}px` }} className={classes.container}>
         <Box className={classes.tabWrapper}>
           <ParagraphBody className={classes.breadCump} colorname='--gray-50' fontWeight={"600"}>
