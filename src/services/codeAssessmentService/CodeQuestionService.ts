@@ -10,8 +10,7 @@ export class CodeQuestionService {
   static async getAdminDetailCodeQuestion(codeQuestionId: string) {
     try {
       const response = await api({
-        baseURL: codeAssessmentServiceApiUrl,
-        isAuthorization: true
+        baseURL: codeAssessmentServiceApiUrl
       }).get(
         API.CODE_ASSESSMENT.CODE_QUESTION.ADMIN_CODE_QUESTION_DETAIL.replace(":id", codeQuestionId)
       );

@@ -1,4 +1,13 @@
-import { Box, FormControl, Grid, MenuItem, Select, SelectChangeEvent } from "@mui/material";
+import {
+  Box,
+  FormControl,
+  Grid,
+  MenuItem,
+  Select,
+  SelectChangeEvent,
+  Switch,
+  Tooltip
+} from "@mui/material";
 import InputTextField from "components/common/inputs/InputTextField";
 import TextEditor from "components/editor/TextEditor";
 import TextTitle from "components/text/TextTitle";
@@ -10,10 +19,18 @@ import { CodeQuestionAdminEntity } from "models/codeAssessmentService/entity/Cod
 import { QuestionDifficultyEnum } from "models/coreService/enum/QuestionDifficultyEnum";
 import { CodeQuestionFormData } from "../../type/CodeQuestionFormData";
 import { Controller, useForm, useFormContext } from "react-hook-form";
+import ErrorMessage from "components/text/ErrorMessage";
 
 type Props = { codeQuestion: CodeQuestionAdminEntity | undefined };
 type CodeQuestionInformationFormValue = {
   name: string;
+  problemStatement: string;
+  difficulty: QuestionDifficultyEnum;
+  inputFormat: string;
+  outputFormat: string;
+  constraints: string;
+  isPublic: boolean;
+  allowImport: boolean;
 };
 
 const CodeQuestionInformation = ({ codeQuestion }: Props) => {
@@ -23,8 +40,6 @@ const CodeQuestionInformation = ({ codeQuestion }: Props) => {
     control: codeQuestionControl,
     formState: { errors: codeQuestionFormErrors }
   } = useFormContext<CodeQuestionInformationFormValue>();
-  const [problemDescription, setProblemDescription] = useState<string>("Mô tả bài toán");
-  const [problemStatement, setProblemStatement] = useState<string>("Tính tổng 2 số");
   const [inputFormat, setInputFormat] = useState<string>(
     "Gồm 2 số nguyên a và b cách nhau bởi dấu cách, được nhập từ bàn phím"
   );
@@ -72,33 +87,23 @@ const CodeQuestionInformation = ({ codeQuestion }: Props) => {
             </TextTitle>
           </Grid>
           <Grid item xs={9}>
-            <Select
-              value={codeQuestion?.difficulty}
-              onChange={handleChange}
-              sx={{ width: "200px" }}
-            >
-              <MenuItem value={QuestionDifficultyEnum.EASY} translation-key='common_easy'>
-                {t("common_easy")}
-              </MenuItem>
-              <MenuItem value={QuestionDifficultyEnum.MEDIUM} translation-key='common_medium'>
-                {t("common_medium")}
-              </MenuItem>
-              <MenuItem value={QuestionDifficultyEnum.HARD} translation-key='common_hard'>
-                {t("common_hard")}
-              </MenuItem>
-            </Select>
-          </Grid>
-        </Grid>
-      </FormControl>
-      <FormControl>
-        <Grid container spacing={1} columns={12}>
-          <Grid item xs={3}>
-            <TextTitle translation-key='code_management_create_description'>
-              {t("code_management_create_description")}
-            </TextTitle>
-          </Grid>
-          <Grid item xs={9} className={classes.textEditor}>
-            <TextEditor value={codeQuestion?.problemStatement} onChange={setProblemDescription} />
+            <Controller
+              name='difficulty'
+              control={codeQuestionControl}
+              render={({ field: { onChange, value } }) => (
+                <Select value={value} onChange={onChange} sx={{ width: "200px" }}>
+                  <MenuItem value={QuestionDifficultyEnum.EASY} translation-key='common_easy'>
+                    {t("common_easy")}
+                  </MenuItem>
+                  <MenuItem value={QuestionDifficultyEnum.MEDIUM} translation-key='common_medium'>
+                    {t("common_medium")}
+                  </MenuItem>
+                  <MenuItem value={QuestionDifficultyEnum.HARD} translation-key='common_hard'>
+                    {t("common_hard")}
+                  </MenuItem>
+                </Select>
+              )}
+            />
           </Grid>
         </Grid>
       </FormControl>
@@ -109,35 +114,113 @@ const CodeQuestionInformation = ({ codeQuestion }: Props) => {
           </TextTitle>
         </Grid>
         <Grid item xs={9} className={classes.textEditor}>
-          <TextEditor value={problemStatement} onChange={setProblemStatement} />
+          <Controller
+            name='problemStatement'
+            control={codeQuestionControl}
+            render={({ field: { onChange, value } }) => (
+              <TextEditor value={value} onChange={onChange} maxLines={12} sx={{}} />
+            )}
+          />
+          {codeQuestionFormErrors.problemStatement?.message && (
+            <ErrorMessage>{codeQuestionFormErrors.problemStatement.message}</ErrorMessage>
+          )}
         </Grid>
       </Grid>
+
       <Grid container spacing={1} columns={12}>
         <Grid item xs={3} translation-key='code_management_create_input_format'>
           <TextTitle>{t("code_management_create_input_format")}</TextTitle>
         </Grid>
-        <Grid item xs={9} className={classes.textEditor}>
-          <TextEditor value={inputFormat} onChange={setInputFormat} />
+        <Grid item xs={9} className={classes.textEditorSmall}>
+          <Controller
+            name='inputFormat'
+            control={codeQuestionControl}
+            render={({ field: { onChange, value } }) => (
+              <TextEditor value={value} onChange={onChange} maxLines={5} />
+            )}
+          />
+          {codeQuestionFormErrors.inputFormat?.message && (
+            <ErrorMessage>{codeQuestionFormErrors.inputFormat.message}</ErrorMessage>
+          )}
         </Grid>
       </Grid>
+
       <Grid container spacing={1} columns={12}>
         <Grid item xs={3}>
           <TextTitle translation-key='code_management_create_constraint'>
             {t("code_management_create_constraint")}
           </TextTitle>
         </Grid>
-        <Grid item xs={9} className={classes.textEditor}>
-          <TextEditor value={contraints} onChange={setContraints} />
+        <Grid item xs={9} className={classes.textEditorSmall}>
+          <Controller
+            name='constraints'
+            control={codeQuestionControl}
+            render={({ field: { onChange, value } }) => (
+              <TextEditor value={value} onChange={onChange} maxLines={5} />
+            )}
+          />
+          {codeQuestionFormErrors.constraints?.message && (
+            <ErrorMessage>{codeQuestionFormErrors.constraints.message}</ErrorMessage>
+          )}
         </Grid>
       </Grid>
+
       <Grid container spacing={1} columns={12}>
         <Grid item xs={3}>
           <TextTitle translation-key='code_management_create_output_format'>
             {t("code_management_create_output_format")}
           </TextTitle>
         </Grid>
-        <Grid item xs={9} className={classes.textEditor}>
-          <TextEditor value={outputFormat} onChange={setOutputFormat} />
+        <Grid item xs={9} className={classes.textEditorSmall}>
+          <Controller
+            name='outputFormat'
+            control={codeQuestionControl}
+            render={({ field: { onChange, value } }) => (
+              <TextEditor value={value} onChange={onChange} maxLines={5} />
+            )}
+          />
+          {codeQuestionFormErrors.outputFormat?.message && (
+            <ErrorMessage>{codeQuestionFormErrors.outputFormat.message}</ErrorMessage>
+          )}
+        </Grid>
+      </Grid>
+
+      <Grid container spacing={1} columns={12}>
+        <Grid item xs={3}>
+          <TextTitle translation-key='common_public'>{t("common_public")}</TextTitle>
+        </Grid>
+        <Grid item xs={9}>
+          <Controller
+            name='isPublic'
+            control={codeQuestionControl}
+            render={({ field: { onChange, value } }) => (
+              <Tooltip title={t("code_management_public_tool_tip")}>
+                <Switch onChange={onChange} checked={value} />
+              </Tooltip>
+            )}
+          />
+          {codeQuestionFormErrors.isPublic?.message && (
+            <ErrorMessage>{codeQuestionFormErrors.isPublic.message}</ErrorMessage>
+          )}
+        </Grid>
+      </Grid>
+      <Grid container spacing={1} columns={12}>
+        <Grid item xs={3}>
+          <TextTitle translation-key='common_allow_import_contest'>
+            {t("common_allow_import_contest")}
+          </TextTitle>
+        </Grid>
+        <Grid item xs={9}>
+          <Controller
+            name='allowImport'
+            control={codeQuestionControl}
+            render={({ field: { onChange, value } }) => (
+              <Switch onChange={onChange} checked={value} />
+            )}
+          />
+          {codeQuestionFormErrors.allowImport?.message && (
+            <ErrorMessage>{codeQuestionFormErrors.allowImport.message}</ErrorMessage>
+          )}
         </Grid>
       </Grid>
     </Box>
