@@ -341,6 +341,7 @@ const QuestionListOfCourse = () => {
         handleChangeQuestionType={setTypeToCreateNewQuestion}
       />
       <PreviewMultipleChoice
+        questionId={previewQuestionId}
         open={openPreviewMultipleChoiceDialog}
         setOpen={setOpenPreviewMultipleChoiceDialog}
         aria-labelledby={"customized-dialog-title1"}
@@ -364,6 +365,7 @@ const QuestionListOfCourse = () => {
         fullWidth
       />
       <PreviewTrueFalse
+        questionId={previewQuestionId}
         open={openPreviewTrueFalse}
         setOpen={setOpenPreviewTrueFalse}
         aria-labelledby={"customized-dialog-title4"}

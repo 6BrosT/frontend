@@ -54,7 +54,7 @@ const PreviewShortAnswer = ({
   const [shortAnswerQuestionDetail, setShortAnswerQuestionDetail] = useState<ShortAnswerQuestion>();
   const [showCorrectAnswer, setShowCorrectAnswer] = useState(false);
   const [isCorrectAnswer, setIsCorrectAnswer] = useState(false);
-  const [answerContentList, setAnswerContentList] = useState<string[]>([]);
+  const [correctAnswerList, setCorrectAnswerList] = useState<string[]>([]);
 
   const handleGetShortAnswerQuestionDetail = async () => {
     try {
@@ -84,10 +84,10 @@ const PreviewShortAnswer = ({
       const res = await handleGetShortAnswerQuestionDetail();
       setShortAnswerQuestionDetail(res.questionResponses[0].qtypeShortAnswerQuestion);
 
-      setAnswerContentList(
-        res.questionResponses[0].qtypeShortAnswerQuestion.question.answers.map(
-          (answer: AnswerOfQuestion) => answer.answer
-        )
+      setCorrectAnswerList(
+        res.questionResponses[0].qtypeShortAnswerQuestion.question.answers
+          .filter((answer: AnswerOfQuestion) => answer.fraction === 1)
+          .map((answer: AnswerOfQuestion) => answer.id)
       );
     };
     fetchData();
@@ -111,6 +111,7 @@ const PreviewShortAnswer = ({
     if (
       checkAnswer(
         value,
+        correctAnswerList,
         shortAnswerQuestionDetail?.question.answers,
         shortAnswerQuestionDetail?.caseSensitive
       )
@@ -198,6 +199,7 @@ const PreviewShortAnswer = ({
                 {t("common_answer")}
               </ParagraphBody>
               <Textarea
+                disabled={showCorrectAnswer}
                 defaultValue={value}
                 value={value}
                 sx={{ marginBottom: 1, backgroundColor: "white" }}
@@ -220,6 +222,11 @@ const PreviewShortAnswer = ({
                       <Heading6>"Thats correct!"</Heading6>
                     </Box>
                   )}
+                  {shortAnswerQuestionDetail?.question?.generalFeedback && (
+                    <ParagraphSmall>
+                      {shortAnswerQuestionDetail?.question?.generalFeedback}
+                    </ParagraphSmall>
+                  )}
                   {!isCorrectAnswer && (
                     <Box display={"flex"} flexDirection='row' alignItems={"center"}>
                       <SentimentDissatisfiedRoundedIcon
@@ -231,9 +238,16 @@ const PreviewShortAnswer = ({
                       <Heading6>"Wrong!!"</Heading6>
                     </Box>
                   )}
-                  <ParagraphSmall>
-                    {`The correct answer is: ${answerContentList?.map((answer) => answer).join(", ")}`}
-                  </ParagraphSmall>
+                  <ParagraphSmall>{`${correctAnswerList?.length > 1 ? t("correct_answer_plural") : t("correct_answer_non_plural")}: `}</ParagraphSmall>
+                  {correctAnswerList?.map((answer) => (
+                    <ParagraphSmall key={answer}>
+                      {
+                        shortAnswerQuestionDetail?.question?.answers?.find(
+                          (item) => item.id === answer
+                        )?.answer
+                      }
+                    </ParagraphSmall>
+                  ))}
                 </Card>
               )}
             </Grid>
@@ -262,14 +276,19 @@ const PreviewShortAnswer = ({
   );
 };
 
-const checkAnswer = (value: string, answerList: AnswerOfQuestion[], caseSensitive: boolean) => {
-  const correctAnswer = answerList.map((answer) => answer.answer);
+const checkAnswer = (
+  value: string,
+  correctAnswerList: string[],
+  contentList: AnswerOfQuestion[],
+  caseSensitive: boolean
+) => {
+  let inputValueId = "";
+  if (caseSensitive) inputValueId = contentList.find((item) => item.answer === value)?.id || "";
+  else
+    inputValueId =
+      contentList.find((item) => item.answer.toLowerCase() === value.toLowerCase())?.id || "";
 
-  if (caseSensitive) {
-    return correctAnswer.includes(value);
-  } else {
-    return correctAnswer.includes(value.toLowerCase());
-  }
+  return correctAnswerList.includes(inputValueId);
 };
 
 export default PreviewShortAnswer;

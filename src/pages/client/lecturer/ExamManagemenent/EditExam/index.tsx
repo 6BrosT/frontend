@@ -581,6 +581,7 @@ export default function ExamEdit() {
       />
       {openPreviewMultipleChoiceDialog && (
         <PreviewMultipleChoice
+          questionId={previewQuestionId}
           open={openPreviewMultipleChoiceDialog}
           setOpen={setOpenPreviewMultipleChoiceDialog}
           aria-labelledby={"customized-dialog-title1"}
@@ -610,6 +611,7 @@ export default function ExamEdit() {
       )}
       {openPreviewTrueFalse && (
         <PreviewTrueFalse
+          questionId={previewQuestionId}
           open={openPreviewTrueFalse}
           setOpen={setOpenPreviewTrueFalse}
           aria-labelledby={"customized-dialog-title4"}

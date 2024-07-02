@@ -510,6 +510,7 @@ export default function ExamCreated() {
         translation-key={["exam_management_create_new_question", "common_cancel", "common_add"]}
       />
       <PreviewMultipleChoice
+        questionId={previewQuestionId}
         open={openPreviewMultipleChoiceDialog}
         setOpen={setOpenPreviewMultipleChoiceDialog}
         aria-labelledby={"customized-dialog-title1"}
@@ -533,6 +534,7 @@ export default function ExamCreated() {
         fullWidth
       />
       <PreviewTrueFalse
+        questionId={previewQuestionId}
         open={openPreviewTrueFalse}
         setOpen={setOpenPreviewTrueFalse}
         aria-labelledby={"customized-dialog-title4"}

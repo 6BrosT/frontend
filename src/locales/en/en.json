@@ -1149,6 +1149,10 @@
   "exam_review_status_submitted": "Submitted",
   "exam_review_status_not_submitted": "Not submitted",
   "exam_review_status_graded": "Graded",
+  "correct_answer_plural": "The correct answers are",
+  "correct_answer_non_plural": "The correct answer is",
+  "preview_start_again": "Start again",
+  "preview_check_result": "Check result",
 
   "update_grade": "Update grade",
   "correct_answer": "Correct answer",
