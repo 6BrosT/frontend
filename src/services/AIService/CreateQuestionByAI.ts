@@ -171,41 +171,86 @@ I. YOUR ROLE:
   - Your expertise encompasses various domains, including software engineering and programming.
   - You can generate code-related questions of diverse types (multiple choice, true/false, short answer, essay) to aid learning and assessment in Tertiary Education.`;
 
-  const SYSTEM_INSTRUCTIONS = (batchSize: number) => `
-	II. SYSTEM_INSTRUCTIONS:
-	A. Your Task:
-	 - Generate {{${batchSize}}} questions on the topic of {{${topic}}} at the {{${levelQuestion}}} level.
-	 - For short answer, it requires a brief response (Answer: no more than 6 words), not an essay. For example with the question "What is the capital of Vietnam?", the answer should be "Hanoi".
-	 - Provide detailed answers for essay and short answer questions to help the question creator understand the expected response.
-	 ${qtype === EQType.MultipleChoice ? `- Total answers of question multiple choice: {{${qamount_answer}}}` : ""}
+  const SYSTEM_INSTRUCTIONS = `
+I. SYSTEM_INSTRUCTIONS:
+	A. Steps for AI to Automatically Generate Questions:
+		1. Read and Parse Input:
+		- Extract provided information details from the input, including ""topic"", ""description"", ""question_type"", ""numberQuestion"", ""levelQuestion"", and ""amount_answers"" (Multiple Choice only).
 
-	B. Note for each question type:
-		- Essay: An open-ended question that requires a detailed response (a paragraph or more).
-		- Multiple Choice: A question with multiple options, only one of which is correct.
-		- Short Answer: A question that requires a brief response (Answer: 1-2 sentences), not an essay.
-		- True/False: A question with only two possible answers (True or False).
-	
-	C. Note for question level:
-		- Beginner: Suitable for students who are new to the topic.
-		- Intermediate: Suitable for students with some knowledge of the topic.
-		- Advanced: Suitable for students with a deep understanding of the topic.
+		2. Understand the Context:
+		- Topic: Identify the main subject area for the questions.
+		- Description: Understand any additional context or specifics provided about the topic.
+		- Level: Determine the difficulty level of the questions (Beginner, Intermediate, Advanced).
+			+ Beginner: Suitable for students who are new to the topic.
+			+ Intermediate: Suitable for students with some knowledge of the topic.
+			+ Advanced: Suitable for students with a deep understanding of the topic.
+		- Question Type: Identify the type of questions to generate (Essay, Multiple Choice, Short Answer, True/False).
 
-	D. Provided information details, each of which is covered by triple quotes or double brackets:
-	- Topic: 
-		""" ${topic} """
+		3. Generate Questions:
+		- Essay Questions:
+			+ Create an open-ended question that requires a detailed response (a paragraph or more).
+			+ Example: "Discuss the impact of climate change on global agriculture."
+			+ Provide detailed expected responses for context.
 
-	- Description: 
-		""" ${description || "No description provided."} """
+		- Multiple Choice Questions:
+			+ Create questions with one correct answer and multiple distractors.
+			+ Example: "What is the capital of Japan?"
+			+ Answers: Tokyo, Osaka, Kyoto, Nagoya
+			+ Correct Answer: Tokyo
+			+ Ensure the total number of answers matches {{amount_answers}}.
 
-	- Question Type: {{${question_type}}}
+		- Short Answer Questions:
+			+ Create questions that require brief responses (1-2 sentences).
+			+ A question that requires a brief response (Answer: 1-2 sentences), not an essay.
+			+ Example: "What is the capital of France?"
+			+ Expected Answer: Paris
+		
+		- True/False Questions:
+			+ Create statements that students must identify as true or false.
+			+ Example: "The Earth revolves around the Sun."
+			+ Correct Answer: True
 
-  ${qtype === EQType.MultipleChoice ? `- Total answers of question multiple choice: {{${qamount_answer}}}` : ""}
+		4. Structure the Output:
+		- Ensure the output is in JSON format with the following structure	 
+		{
+			"qtypeId": number,
+			"questions": [
+				{
+					"id": number,
+					"question": string,
+					"answers": [
+						{
+							"id": number,
+							"content": string
+						},
+						...
+					],
+					"correctAnswer": number
+				},
+				...
+			]
+		}
 
-  - Number of Questions: {{${batchSize}}}
+		5. Validate and Format JSON:
+			- Validate that the generated JSON is syntactically correct.
+			- Ensure the question content and answers do not use quotation marks. Replace with escaped characters if necessary.
+		6. Handle Different Question Types Separately:
+		- For Essay:
+			+ Generate detailed questions.
+			+ Provide expected detailed responses.
+		- For Multiple Choice:
+			+ Generate questions with multiple options.
+			+ Identify and include the correct answer ID.
+		- For Short Answer:
+			+ Generate questions with expected brief responses.
+		- For True/False:
+			+ Generate statements with True or False answers.
+			+ Identify and include the correct answer ID.
 
-	- Level: {{${levelQuestion}}}
+		7. Incorporate Language Requirements:
+			- Ensure all questions and answers are written in the specified language (${language}).
 
-	E. Output:
+	B. Output:
 		The structure of the response must be {{JSON format}} which follows the following structure:
 		- qtypeId: The type of question contains the following values.
 			+ 1: Essay
@@ -233,8 +278,26 @@ I. YOUR ROLE:
 			- The example is just for reference. Don't use it to respond to user.
 			- Ensure the response is in valid {{JSON format}} !!!
 
-	F. Please use {{${language}}} everywhere to write questions and answers for students.`;
+	C. Respond if you understand the instructions and are ready to proceed. I will provide you with the input details for question generation.`;
 
+  const INPUT_OUTPUT = (numberQuestion: number) => `
+I. INPUT:
+	A. Input:
+	Provided information details, each of which is covered by triple quotes or double brackets:
+		- Topic: 
+			""" ${topic} """
+
+		- Description: 
+			""" ${description || "No description provided."} """
+
+		- Question Type: {{${question_type}}}
+
+		${qtype === EQType.MultipleChoice ? `- Number of answers of each question multiple choice: {{${qamount_answer}}}` : ""}
+
+		- Number of Questions: {{${numberQuestion}}}
+
+		- Level: {{${levelQuestion}}}
+		`;
   try {
     let result, response, text;
     const batchSize = 3; // Adjust the batch size as needed
@@ -256,10 +319,14 @@ I. YOUR ROLE:
       ]
     });
 
+    result = await chat.sendMessageStream(SYSTEM_INSTRUCTIONS);
+    response = await result.response;
+    text = await response.text();
+
     const numberOfBatches = Math.ceil(number_question / batchSize);
     for (let i = 0; i < numberOfBatches; i++) {
       const currentBatchSize = Math.min(batchSize, number_question - i * batchSize);
-      result = await chat.sendMessageStream(SYSTEM_INSTRUCTIONS(currentBatchSize));
+      result = await chat.sendMessageStream(INPUT_OUTPUT(currentBatchSize));
       response = await result.response;
       text = await response.text();
       const cleanText = text.replace(/```/g, "").replace(/json/g, "");

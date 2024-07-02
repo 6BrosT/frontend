@@ -928,6 +928,7 @@
   "grading_config_add_new_criteria": "Add new criteria",
   "grading_config_add_new_rubric": "Add new rubric",
   "grading_config_criteria_name": "Criteria name",
+  "grading_config_criteria_grade": "Criteria grade",
   "grading_config_criteria_edit": "Edit criteria",
   "grading_config_criteria": "Criteria",
 
@@ -936,7 +937,7 @@
   "grading_config_letter_description": "Traditional letter grades: A, B, C and D",
   "grading_config_point_description": "Point-based grading: 10, 9, 8, 7, 6, 5, 4, 3, 2, 1",
 
-  "grading_config_criteria_scale_description": "Grading scale {{index}} description",
+  "grading_config_criteria_scale_description": "Grading scale description {{index}}",
   "grading_config_criteria_scale": "Grading scale",
   "grading_config_enter_rubric_name": "Enter rubric name",
   "grading_config_enter_criteria_name": "Enter criteria name",

@@ -925,6 +925,7 @@
   "grading_config_add_new_rubric": "Thêm bảng chấm mới",
   "grading_config_add_new_criteria": "Thêm tiêu chí mới",
   "grading_config_criteria_name": "Tên tiêu chí",
+  "grading_config_criteria_grade": "Điểm tiêu chí",
   "grading_config_criteria_edit": "Chỉnh sửa tiêu chí",
   "grading_config_criteria": "Tiêu chí",
 

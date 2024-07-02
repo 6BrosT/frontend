@@ -1,4 +1,5 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import i18next from "i18next";
 import { jsonrepair } from "jsonrepair";
 // Access your API key as an environment variable (see "Set up your API key" above)
 const genAI = new GoogleGenerativeAI(process.env.REACT_APP_GOOGLE_GEMINI_AI_KEY || "");
@@ -9,135 +10,18 @@ export interface QuestionEssay {
   rubics: string;
   maxScore: number;
 }
-
-interface FeedbackContent {
-  content: string;
-  score: number;
-}
-
-interface FeedbackForm {
-  content: string;
-  score: number;
-}
-
-interface FeedbackStyle {
-  content: string;
-  score: number;
-}
-
-export interface IFeedback {
-  content: FeedbackContent;
-  form: FeedbackForm;
-  style: FeedbackStyle;
-  overall: string;
-}
-
 export interface IFeedbackGradedAI {
   studentSubmissionId: number;
-  feedback: IFeedback;
+  feedback: string;
+  score_overall: number;
 }
-
-export enum EFeedbackGradedCriteriaRate {
-  CONTENT_FEEDBACK = 0.9,
-  FORM_FEEDBACK = 0.05,
-  STYLE_FEEDBACK = 0.05
-}
-
-const format_scoring: IFeedbackGradedAI[] = [
-  {
-    studentSubmissionId: 1,
-    feedback: {
-      content: {
-        content: `
-#### a. Độ chính xác: 
-- Câu trả lời mô tả chính xác các bước liên quan đến việc tìm giá trị lớn nhất trong danh sách liên kết đơn.
-#### b. Logic:
-- Câu trả lời trình bày một chuỗi các bước hợp lý để lặp qua danh sách và cập nhật biến max.
-#### c. Sáng tạo:
-- Mặc dù không hoàn toàn cần thiết cho câu hỏi này, nhưng không đề cập đến các phương pháp tiếp cận thay thế.
-#### d. Sử dụng nguồn:
-- Không áp dụng cho dạng câu hỏi này.				
-`,
-        score: 6
-      },
-      form: {
-        content: `
-#### a. Ngữ pháp:
-- Câu trả lời sử dụng ngữ pháp và cấu trúc câu thích hợp.
-#### b. Từ vựng:
-- Từ vựng được sử dụng rõ ràng, súc tích và phù hợp với giải thích kỹ thuật.
-#### c. Chính tả:
-- Không có lỗi chính tả.
-#### d. Bố cục:
-- Câu trả lời được cấu trúc tốt với các bước được đánh số, giúp dễ hiểu.`,
-        score: 1
-      },
-      style: {
-        content: `
-#### a. Rõ ràng:
-- Câu trả lời giải thích rõ ràng từng bước của thuật toán.
-#### b. Hấp dẫn:
-- Mặc dù câu trả lời mang tính thông tin, nhưng nó có thể không hấp dẫn đối với một đối tượng chung.
-#### c. Phù hợp:
-- Phong cách súc tích và đi vào trọng tâm, phù hợp với tính chất kỹ thuật của câu hỏi.`,
-        score: 1
-      },
-      overall: `
-#### 4. Tổng quát:
-Câu trả lời này giải quyết hiệu quả lời nhắc bằng cách cung cấp một lời giải thích rõ ràng và chính xác về thuật toán để tìm giá trị lớn nhất trong danh sách liên kết đơn. Nó thể hiện sự hiểu biết tốt về các bước cần thiết và trình bày chúng theo cách có cấu trúc tốt.`
-    }
-  },
-  {
-    studentSubmissionId: 2,
-    feedback: {
-      content: {
-        content: `
-#### a. Độ chính xác: 
-- Câu trả lời chỉ cung cấp một bước ("3. Trả về giá trị của max") và thiếu thông tin quan trọng về toàn bộ thuật toán.
-#### b. Logic:
-- Không có lời giải thích logic hoặc các bước để tìm phần tử lớn nhất.
-#### c. Sáng tạo:
-- Không có cách tiếp cận sáng tạo nào được thể hiện trong việc giải quyết vấn đề.
-#### d. Sử dụng nguồn:
-- Không áp dụng cho dạng câu hỏi này.	
-`,
-        score: 2
-      },
-      form: {
-        content: `
-#### a. Ngữ pháp:
-- Câu trả lời đúng ngữ pháp như một câu đơn.
-#### b. Từ vựng:
-- Từ vựng được sử dụng đơn giản và phù hợp.
-#### c. Chính tả:
-- Không có lỗi chính tả.
-#### d. Bố cục:
-- Câu trả lời chỉ bao gồm một câu, vì vậy bố cục không áp dụng.`,
-        score: 0.5
-      },
-      style: {
-        content: `
-#### a. Rõ ràng:
-- Câu trả lời rõ ràng nhưng không đầy đủ.
-#### b. Hấp dẫn:
-- Câu trả lời không hấp dẫn vì thiếu lời giải thích hoặc ngữ cảnh.
-#### c. Phù hợp:
-- Phong cách câu trả lời phù hợp cho một tuyên bố ngắn gọn nhưng không đủ cho một giải pháp hoàn chỉnh.`,
-        score: 0
-      },
-      overall: `
-#### 4. Tổng quát:
-- Câu trả lời chỉ cung cấp một bước và không giải quyết được yêu cầu cốt lõi là giải thích thuật toán tìm phần tử lớn nhất trong danh sách liên kết đơn.`
-    }
-  }
-];
 
 export interface AssignmentStudent {
   id: number;
   studentAnswer: string;
 }
 async function gradingEssayByAI(data: AssignmentStudent[], question: QuestionEssay) {
-  const language = "Vietnamese";
+  const language = i18next.language === "en" ? "English" : "Vietnamese";
 
   const AI_ROLE = `
 I. YOUR ROLE:
@@ -151,13 +35,101 @@ I. YOUR ROLE:
 	C. Strive to emulate the qualities of a patient, knowledgeable, and supportive educator who guides students towards academic excellence.`;
 
   const SYSTEM_INSTRUCTIONS = `
-II. SYSTEM_INSTRUCTIONS:
-	A. Your Task: Provide comprehensive feedback and assign scores to student essays based on the following information:
+I. SYSTEM_INSTRUCTIONS:
+	A. Your Task:
+		1. Evaluate student essays based on the provided criteria and rubics.
+		2. Provide detailed feedback based on rubrics and grading criteria is provided by the lecturer to help students improve their writing skills.
+		3. Assign scores to each essay based on the grading rubric and guidelines.
+		4. Offer constructive criticism and suggestions for improvement to help students enhance their writing skills.
+
+	B. Steps for AI to Evaluate Essays:
+		1. Understand the Question and Rubric:
+		- Question: Carefully read and understand the question provided by the lecturer to know what the students are expected to address in their essays.
+		- Rubric: Review the grading rubric to understand the criteria for evaluating the essays, including content, form, and style.
+
+		2. Process Each Student Submission:
+		- For each student submission, identify the unique ""id"" and extract the ""studentAnswer"".
+
+		3. Evaluate Content Relevance and Accuracy:
+		- Relevance: Check if the ""studentAnswer"" is relevant to the provided question.
+			+ If not relevant, provide feedback on the lack of relevance and assign a score of 0.
+		- Accuracy: Assess if the information presented is factually correct and addresses the main points of the question.
+
+		4. Assess Structure and Coherence:
+		- Logic: Evaluate the logical flow of the argument or explanation in the essay.
+		- Coherence: Check if the essay is well-organized and ideas are clearly connected.
+
+		5. Use the Rubric to Grade Specific Criteria:
+		- Break down the rubric into its specific criteria (e.g., thesis statement, supporting arguments, evidence, conclusion).
+		- Assign a score for each criterion based on the student's performance.
+
+		6. Provide Constructive Feedback based on Rubric Criteria:
+		- Offer detailed feedback for each criterion, highlighting strengths and areas for improvement.
+		- Provide specific suggestions for enhancing writing skills and addressing weaknesses.
+		- Use clear language and examples to illustrate your points.
+		- Feedback for each criterion should be tailored to the student's submission.
+
+		7. Calculate Overall Score:
+		- Based on the rubric, aggregate the scores from each criterion to determine the overall score.
+		- Ensure the overall score is a decimal number between 0 and the maximum score specified in the question.
+
+		8. Format Feedback and Score:
+		- Ensure the feedback is detailed, specific, and offers suggestions for improvement.
+		- You have to feedback based on the grading criteria and rubrics provided by the lecturer.
+		- Format the feedback and score into a JSON object as follows:
+			{
+				"studentSubmissionId": <student_id>,
+				"feedback": "<detailed_feedback>",
+				"score_overall": <overall_score>
+			}
+
+		9. Generate Final Output:
+		- Compile the feedback and scores for all student submissions into a JSON array.
+		- Validate the JSON format to ensure it matches the required structure.
+
+	C. Example Process for a Single Submission:
+
+		1. Read Question: "Explain the process of photosynthesis." and Question Max Score: 5.
+
+		2. Read Rubric: Criteria include understanding of photosynthesis, clarity of explanation, use of scientific terminology, and overall essay structure.
+		
+		3. Evaluate Submission:
+		- Relevance: Confirm the essay discusses photosynthesis.
+		- Content Accuracy: Check for correct descriptions of light-dependent and light-independent reactions.
+		- Structure: Assess logical flow from introduction to conclusion.
+		- Use of Terminology: Ensure proper use of terms like chlorophyll, ATP, etc.
+
+		4. Provide Feedback:
+		- Feedback based on each criterion (relevance, accuracy, structure, terminology).
+		- Answer: """Relevance: Your explanation of the light-dependent reactions is accurate and well-explained. However, the section on light-independent reactions lacks detail. Consider elaborating on the Calvin cycle. \nAccuracy: Your description of the Calvin cycle is clear and accurate, demonstrating a good understanding of the process. \nStructure: The essay is well-structured with a clear introduction and conclusion. However, the transition between the two sections could be smoother. \nTerminology: You have used scientific terminology effectively, but remember to define complex terms for readers unfamiliar with the topic."""
+
+		5. Assign Score:
+		- Content: 4/5
+		- Clarity: 3/5
+		- Terminology: 4/5
+		- Structure: 3/5
+		- Overall Score: 3.5/5
+
+		6. Output:
+		{
+		"studentSubmissionId": 1,
+		"feedback": "Relevance: Your explanation of the light-dependent reactions is accurate and well-explained. However, the section on light-independent reactions lacks detail. Consider elaborating on the Calvin cycle. \nAccuracy: Your description of the Calvin cycle is clear and accurate, demonstrating a good understanding of the process. \nStructure: The essay is well-structured with a clear introduction and conclusion. However, the transition between the two sections could be smoother. \nTerminology: You have used scientific terminology effectively, but remember to define complex terms for readers unfamiliar with the topic.",
+		"score_overall": 3.5
+		}
 	
-	B. Student Submissions follow the following structure:
-		The list of student submissions is provided in JSON format (SubmissionStudent[]). There are two attributes id and studentAnswer for each student submission:
+	D. Respond if you understand the instructions and are ready to proceed. I will provide you with the input and grading criteria in next conversation to start evaluating the student submissions.
+	`;
+
+  const INPUT_OUTPUT = `
+II. INPUT AND OUTPUT:
+	B. Input:
+		The list of student submissions is provided in JSON format (SubmissionStudent[]). There are two attributes {{id}} and {{studentAnswer}} for each student submission:
 			- SubmissionStudent[]: The data structure for a list of student submissions.
 				[
+					{
+						id: A unique identifier for the student's essay (number).
+						studentAnswer: The content of the student's essay (string).
+					},
 					{
 						id: A unique identifier for the student's essay (number).
 						studentAnswer: The content of the student's essay (string).
@@ -165,187 +137,90 @@ II. SYSTEM_INSTRUCTIONS:
 					...
 				] 
 
-		This is the list of students' submissions (SubmissionStudent[]) that will be reviewed by you. You will provide feedback for the attribute studentAnswer (The content of the student's essay) for each student's submission (indentified by "ID").:
-			${JSON.stringify(data)} 
-			
-	C. Feedback Results (${data.length} elements):
-		The feedback results will have ${data.length} elements. Each element is based on question details below and studenAnswer to grade and provide feedback to user:
-			- Question content:
-				${question.content}
-		
-		This is the list of students' submissions (SubmissionStudent[]) that will be reviewed by you. You will provide feedback for the attribute studentAnswer (The content of the student's essay) for each student's submission (indentified by "ID").:
-			${JSON.stringify(data)} 
+		You will provide feedback for the attribute {{studentAnswer}} (the content of the student's essay) for each student's submission (identified by {{id}}):
+		"""
+		${JSON.stringify(data)} 
+		"""
 
-		From the students' submission data above, please give me the grading and feedback suggestions for each student's submission. The studentSubmissionId should match the student's submission ID above. It must be follow JSON format !!! According to the following structure:
-			- IFeedbackGradingAI[]: The feedback results will have ${data.length} elements. The data structure for a list of feedback.
+	C. Output:
+		The feedback results will have {{${data.length}}} elements. Each element is based on question details below and {{studentAnswer}} to grade and provide feedback to user:
+
+		From the students' submission data above, please give me the grading and feedback suggestions for each student's submission. The {{studentSubmissionId}} should match the {{student's submission ID}} above. It must follow {{JSON format}}. According to the following structure:
+			- IFeedbackGradingAI[]: The feedback results will have {{${data.length}}} elements. The data structure for a list of feedback.
 			[
 				{
 					studentSubmissionId: number,
-					feedback: {
-						content: {
-							content: string (not be empty and null),
-							score: number
-						},
-						form: {
-							content: string (not be empty and null),
-							score: number
-						},
-						style: {
-							content: string (not be empty and null),
-							score: number
-						},
-						overall: string (not be empty and null),
-					}
+					feedback: string,
+					score_overall: number
 				},
 				{
-					...
-				}
+					studentSubmissionId: number,
+					feedback: string,
+					score_overall: number
+				},
+				...
 			]
 
 			- Description: Each feedback has two attributes studentSubmissionId and feedback for each feedback (IFeedbackGradingAI): 
-				+ studentSubmissionId:
-					* Data type: number
-					* Description: A unique identifier that will match the student's submission ID in the list of student submissions above.
-				+ feedback:
-					* Data type: object
-					* Description: An object that contains the feedback for the student's submission (IFeedback). The feedback depends on the attribute studentAnswer, which matches the feedback ID and the student's submission ID.
-						- IFeedback: The data structure for a feedback, has five attributes: content, form, style, overall, and score are same at level:
-						{
-							content (an object that contains the content criteria of the feedback (IFeedbackContent). It only has 2 sections: content and score) {
-								- content: 
-									+ A string (not be empty and null). Feedback follow the markdown syntax. You should use \`\` to wrap the highlighted text. 
-									+ You must follow the following guideline to provide feedback to the user's essay. It only has 4 sections: accuracy, logic, creativity, and source usage:
+				+ studentSubmissionId: (number) A unique identifier that matches the student's submission ID in the list of student submissions.
+				+ feedback (string)  Focused and specific feedback provided to the student based on the {{grading criteria}} and {{rubrics}} below. The feedback should be constructive, specific, and offer suggestions for improvement, highlighting the identified areas for improvement. Followed by {{Markdown format}}.
+				+ score_overall: (number) The overall score assigned to the student's submission based on the grading criteria and rubrics. The score should be a decimal number between 0 and {{${question.maxScore}}} and reflect the quality of the student's essay and how well it meets the grading criteria.
+			
+		Here is a {{question}} is provided by lecturer which is covered by triple quotes:
+		"""	
+		${question.content}
+		"""
 
-									"
-										- Accuracy: The extent to which the information in the essay is accurate, complete, and relevant to the topic assigned.
-										- Logic: The extent to which the essay is logical, coherent, and consistent in its argument and presentation of ideas.
-										- Creativity: The extent to which the essay is unique, original, and creative in its approach to and solution of the problem.
-										- Source Usage: The extent to which sources are used appropriately, accurately, and with complete information.	
-									"
+			- Note for question: 
+				+ The {{question}} is provided by the lecturer and you need to use this content to evaluate the student's submission if {{studentAnswer}} of each student is relevant to the question. If the student's submission is not relevant to the question, you should provide feedback on the lack of relevance and assign a score of 0.
+				+ And then you need to evaluate the student's submission based on the {{grading criteria}} and {{rubric}} provided below.
+		
+		Question max score which is covered by double brackets: {{${question.maxScore}}}
+			- Note for question max score: The max score for this question is {{${question.maxScore}}}. You need to assign a score between 0 and {{${question.maxScore}}} based on the quality of the student's submission and how well it meets the grading criteria.
 
-									+ Note for the content of content criteria feedback:
-										* Ensure the response is in valid Markdown format !!!
-										* It will be use to feedback the question below to provide feedback to the user's essay:
-											** Title of the code question: 
-												${question.content}
+		Rubric for grading which is covered by triple quotes, {{feedback}} and {{score_overall}} of each student's submission have to be evaluated based on this rubrics:
+		"""
+		${question.rubics}
+		"""
 
-									+ Here is example of the content of content criteria feedback:
-										${format_scoring[0].feedback.content.content}
-
-									+ Note for example of the content of content criteria feedback:
-										* The example of the content of content criteria feedback is just for reference. You can change the example to fit your needs.
-
-								- score: A number (not be null), indicates the content criteria score of the feedback. Content score must be between 0 and ${(EFeedbackGradedCriteriaRate.CONTENT_FEEDBACK * question.maxScore).toFixed(2)}
-									+ Here is a rubric description that helped you calculate an exact content score:
-										* Score: ${(1 * EFeedbackGradedCriteriaRate.CONTENT_FEEDBACK * question.maxScore).toFixed(2)}: The essay is complete, accurate, logical, creative, and uses sources appropriately.
-										* Score: ${(0.75 * EFeedbackGradedCriteriaRate.CONTENT_FEEDBACK * question.maxScore).toFixed(2)}: The essay is complete, accurate, and logical, and uses sources appropriately.
-										* Score: ${(0.5 * EFeedbackGradedCriteriaRate.CONTENT_FEEDBACK * question.maxScore).toFixed(2)}: The essay is complete, accurate, but lacks logic, and uses sources somewhat appropriately.
-										* Score: ${(0.25 * EFeedbackGradedCriteriaRate.CONTENT_FEEDBACK * question.maxScore).toFixed(2)}: The essay is incomplete, inaccurate, illogical, and uses sources inappropriately.
-											
-							},
-
-							form (an object that contains the form criteria of the feedback (IFeedbackForm). It only has 2 sections: content and score): {
-								- content: 
-									+ A string (not be empty and null). Feedback follow the markdown syntax. You should use \`\` to wrap the highlighted text.
-									+ You must follow the following guideline to provide feedback to the user's essay. It only has 4 sections: grammar, vocabulary, spelling, and layout:
-
-									"
-										- Grammar: The extent to which grammar, sentence structure, and punctuation are used accurately and effectively.
-										- Vocabulary: The extent to which vocabulary is varied, rich, and appropriate for the essay.
-										- Spelling: The extent to which spelling is accurate.
-										- Layout: The extent to which the layout is clear, organized, and easy to understand.
-									"
-
-									+ Here is example of the content of form criteria feedback:
-										${format_scoring[0].feedback.form.content}
-
-									+ Note for example of the content of form criteria feedback:
-										* The example of the content of form criteria feedback is just for reference. You can change the example to fit your needs.
-										* Ensure the response is in valid Markdown format !!!
-
-								- score: A number (not be null), indicates the form criteria score of the feedback. Form score must be between 0 and ${(EFeedbackGradedCriteriaRate.FORM_FEEDBACK * question.maxScore).toFixed(2)}
-									+ Here is a rubric description that helped you calculate an exact content score:
-										* Score: ${(1 * EFeedbackGradedCriteriaRate.FORM_FEEDBACK * question.maxScore).toFixed(2)}: The essay has no errors in grammar, spelling, or punctuation, and uses varied, rich, and appropriate vocabulary with a clear layout.
-										* Score: ${(0.75 * EFeedbackGradedCriteriaRate.FORM_FEEDBACK * question.maxScore).toFixed(2)}: The essay has few errors in grammar, spelling, or punctuation, uses varied, rich, and appropriate vocabulary, and has a relatively clear layout.
-										* Score: ${(0.5 * EFeedbackGradedCriteriaRate.FORM_FEEDBACK * question.maxScore).toFixed(2)}: The essay has several errors in grammar, spelling, or punctuation, uses somewhat varied and rich vocabulary, and has a somewhat clear layout.
-										* Score: ${(0.25 * EFeedbackGradedCriteriaRate.FORM_FEEDBACK * question.maxScore).toFixed(2)}: The essay has many errors in grammar, spelling, or punctuation, uses limited vocabulary, and has an unclear layout.
-							},
-
-							style (an object that contains the style criteria of the feedback (IFeedbackStyle). It only has 2 sections: content and score): {
-								- content: 
-									+ A string (not be empty and null). Feedback follow the markdown syntax. You should use \`\` to wrap the highlighted text.
-									+ You must follow the following structure to provide the content of form criteria feedback to the user's essay. It only has 3 sections: clarity, engagement, and appropriateness:
-
-										"
-											- Clarity: The extent to which the essay is clear, concise, and direct in its presentation of information.
-											- Engagement: The extent to which the essay is engaging, interesting, and creates a sense of excitement for the reader.
-											- Appropriateness: The extent to which the style is appropriate for the topic, purpose, and audience.
-										"
-
-									+ Here is example of the content of style criteria feedback:
-										${format_scoring[0].feedback.style.content}
-
-									+ Note for example of the content of style criteria feedback:
-										* The example of the content of style criteria feedback is just for reference. You can change the example to fit your needs.
-										* Ensure the response is in valid Markdown format !!!
-								
-								- score: A number (not be null), indicates the style criteria score of the feedback. Style score must be between 0 and ${(EFeedbackGradedCriteriaRate.STYLE_FEEDBACK * question.maxScore).toFixed(2)}
-									+ Here is a rubric description that helped you calculate an exact content score:
-										* Score: ${(1 * EFeedbackGradedCriteriaRate.STYLE_FEEDBACK * question.maxScore).toFixed(2)}:	The essay is clear, engaging, and appropriate for the topic, purpose, and audience.
-										* Score: ${(0.75 * EFeedbackGradedCriteriaRate.STYLE_FEEDBACK * question.maxScore).toFixed(2)}: The essay is relatively clear, engaging, and appropriate for the topic, purpose, and audience.
-										* Score: ${(0.5 * EFeedbackGradedCriteriaRate.STYLE_FEEDBACK * question.maxScore).toFixed(2)}:	The essay is unclear, lacks engagement, and is somewhat appropriate for the topic, purpose, and audience.
-										* Score: ${(0.25 * EFeedbackGradedCriteriaRate.STYLE_FEEDBACK * question.maxScore).toFixed(2)}: The essay is unclear, not engaging, and not appropriate for the topic, purpose, and audience.
-							},
-
-							overall: A string (not be empty and null), indicating the overall feedback of the student within the content, form, and style.
-								- Here is example of the overall feedback:
-									${format_scoring[0].feedback.overall}
-
-								- Note for example of the overall feedback:
-									* The example of the overall feedback is just for reference. You can change the example to fit your needs.
-									* Ensure the response is in valid Markdown format !!!
-
-						}
+			- Note for rubic: Steps to base on {{rubic above}} to grade the {{student's submission}}:
+				+ Step 1: Evaluate the content of the essay is accurate and relevant to the {{question}} provided above.
+				+ Step 2: Assess the logic and coherence of the argument presented in the essay.
+				+ Step 3: Use {{rubic}} below to evaluate the score overall for the student's submission. Rubic has list {{criterias}} is provided by lecturer and you need to use this to evaluate the student's submission if {{studentAnswer}} belong to score range of each criteria.
 
 	D. Please use ${language} everywhere to write feedback messages for students.
-	
-	E. For example:
-		This is a student submission:
-			[
-				{
-					id: 1,
-					studentAnswer:
-          	"1. Khởi tạo một biến max để lưu giá trị lớn nhất ban đầu là giá trị của phần tử đầu tiên trong danh sách liên kết. 2. Duyệt qua danh sách liên kết, so sánh từng phần tử với max. Nếu phần tử hiện tại lớn hơn max thì gán max bằng giá trị của phần tử hiện tại. 3. Trả về giá trị của max."
-				},
-				{
-					id: 2,
-					studentAnswer:
-						"3. Trả về giá trị của max."
-				}
-			],
-			
-		This is a response from the AI:
-			${JSON.stringify(format_scoring)}
-				
-		Note of example:
-			1. Ensure the response is in valid JSON format !!!
-			2. The example is just for reference. You can change the example to fit your needs.
 	`;
-
-  const prompt = `
-${AI_ROLE}
-
-${SYSTEM_INSTRUCTIONS}`;
 
   const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-latest" });
   try {
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    let text = response.text();
-    let cleanText = text.replace(/```/g, "");
-    console.log("cleanText", cleanText);
+    let result, response, text;
+    result = await model.generateContentStream(AI_ROLE);
+    response = await result.response;
+    text = response.text;
+
+    const chat = model.startChat({
+      history: [
+        {
+          role: "user",
+          parts: [{ text: AI_ROLE }]
+        },
+        {
+          role: "model",
+          parts: [{ text: String(text) }]
+        }
+      ]
+    });
+
+    result = await chat.sendMessageStream(SYSTEM_INSTRUCTIONS);
+    response = await result.response;
+    text = await response.text();
+    result = await chat.sendMessageStream(INPUT_OUTPUT);
+    response = await result.response;
+    text = await response.text();
+    const cleanText = text.replace(/```/g, "").replace(/json/g, "");
     const repaired = jsonrepair(cleanText);
     const json = JSON.parse(repaired);
+    console.log("json", json);
     return json;
   } catch (error) {
     return error;
